@@ -1,0 +1,33 @@
+name: pr
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+    - name: Molnctl Setup
+      uses: molnett/setup-molnctl-action@v2
+      with:
+        api-token-client-id: ${{ secrets.MOLNETT_CLIENT_ID }}
+        api-token-client-secret: ${{ secrets.MOLNETT_CLIENT_SECRET }}
+        default-org: personal
+    - name: Deploy Ephemeral Environment
+      uses: ./
+      with:
+        action: deploy
+        manifest-path: test/molnett.yaml
+    - name: Delete Ephemeral environment
+      uses: ./
+      with:
+        action: delete
+        manifest-path: test/molnett.yaml
+    - name: Cleanup
+      run: rm -r ~/.config/molnett

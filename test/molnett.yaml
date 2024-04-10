@@ -1,0 +1,5 @@
+environment: ephemeral-test
+service:
+  name: ephemeral-test
+  image: nginx
+  container_port: 8080

@@ -1,0 +1,71 @@
+name: 'Molnett - Ephemeral Environments'
+description: 'Deploy or delete an ephemeral environment'
+branding:
+  icon: 'download-cloud'
+  color: 'orange'
+inputs:
+  action:
+    description: 'Either "deploy" or "delete"'
+    required: true
+  manifest-path:
+    description: 'Path to molnett manifest'
+    required: true
+outputs:
+  environment-name:
+    description: 'Name of the created environment'
+    value: ${{ steps.env-name.outputs.env }}
+  service-name:
+    description: 'Name of the deployed service'
+    value: ${{ steps.deploy.outputs.name }}
+runs:
+  using: 'composite'
+  steps:
+  - name: Check Event
+    if: ${{ github.event_name != 'pull_request' }}
+    shell: bash
+    env:
+      EVENT_NAME: ${{ github.event_name }}
+    run: |
+      echo "::error title=⛔ error hint::action needs pull request event, was $EVENT_NAME"
+      exit 1
+  - name: Check Action
+    if: ${{ inputs.action != 'deploy' && inputs.action != 'delete' }}
+    shell: bash
+    run: |
+      echo "::error title=⛔ error hint::action needs to be deploy or delete"
+      exit 1
+  - name: Check Runner OS
+    if: ${{ runner.os != 'Linux' }}
+    shell: bash
+    run: |
+      echo "::error title=⛔ error hint::Support Linux Only"
+      exit 1
+  - name: Environment Name
+    id: env-name
+    shell: bash
+    env:
+      ENV_NAME: pr-${{ github.event.number }}-${{ github.head_ref }}
+    run: |
+      # Replace special characters in branch name with dash
+      ENV_NAME=`echo $ENV_NAME | tr $'!\'#$%&()+,-./;<=>@]_\`{|}' '-'`
+      echo "env=$ENV_NAME" >> $GITHUB_OUTPUT
+  - name: Deploy Ephemeral Environment
+    id: deploy
+    if: ${{ inputs.action == 'deploy' }}
+    shell: bash
+    env:
+      ENV_NAME: ${{ steps.env-name.outputs.env }}
+      MANIFEST: ${{ inputs.manifest-path }}
+    run: |
+      sed -i "s/environment:.*/environment: $ENV_NAME/" $MANIFEST
+      molnctl environments create $ENV_NAME || true
+      molnctl services deploy --no-confirm $MANIFEST
+      FINAL_NAME=$(sed -n 's/name: //p' $MANIFEST | awk '{$1=$1};1')
+      echo "name=$FINAL_NAME" >> $GITHUB_OUTPUT
+  - name: Delete Ephemeral Environment
+    if: ${{ inputs.action == 'delete' }}
+    shell: bash
+    env:
+      ENV_NAME: ${{ steps.env-name.outputs.env }}
+    run: |
+      molnctl environments delete --no-confirm $ENV_NAME

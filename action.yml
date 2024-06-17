@@ -44,7 +44,7 @@ runs:
     id: env-name
     shell: bash
     env:
-      ENV_NAME: pr-${{ github.event.number }}-${{ github.head_ref }}
+      ENV_NAME: ${{ github.head_ref }}
     run: |
       # Replace special characters in branch name with dash
       ENV_NAME=$(echo $ENV_NAME | tr $'!\'#$%&()+,-./;<=>@]_\`{|}' '-')

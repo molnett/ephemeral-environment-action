@@ -47,7 +47,7 @@ runs:
       ENV_NAME: ${{ github.head_ref }}
     run: |
       # Replace special characters in branch name with dash
-      ENV_NAME=$(echo $ENV_NAME | tr $'!\'#$%&()+,-./;<=>@]_\`{|}' '-')
+      ENV_NAME=$(echo $ENV_NAME | tr $'!\'#$%&()+,-./;<=>@]_\`{|}' '-' | cut -c -30)
       echo "env=$ENV_NAME" >> $GITHUB_OUTPUT
   - name: Deploy Ephemeral Environment
     id: deploy

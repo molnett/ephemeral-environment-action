@@ -10,6 +10,8 @@ inputs:
   manifest-path:
     description: 'Path to molnett manifest'
     required: true
+  copy-from:
+    description: 'Which environment to copy resources (e.g. secrets) from'
 outputs:
   environment-name:
     description: 'Name of the created environment'
@@ -56,9 +58,10 @@ runs:
     env:
       ENV_NAME: ${{ steps.env-name.outputs.env }}
       MANIFEST: ${{ inputs.manifest-path }}
+      COPY_FROM: ${{ inputs.copy-from }}
     run: |
       sed -i "s/environment:.*/environment: $ENV_NAME/" $MANIFEST
-      molnctl environments create $ENV_NAME || true
+      if [ $COPY_FROM ]; then molnctl environments create $ENV_NAME --copy-from=$COPY_FROM || true else molnctl environments create $ENV_NAME || true;
       molnctl services deploy --no-confirm $MANIFEST
       FINAL_NAME=$(sed -n 's/name: //p' $MANIFEST | awk '{$1=$1};1')
       echo "name=$FINAL_NAME" >> $GITHUB_OUTPUT

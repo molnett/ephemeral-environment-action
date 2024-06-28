@@ -61,7 +61,7 @@ runs:
       COPY_FROM: ${{ inputs.copy-from }}
     run: |
       sed -i "s/environment:.*/environment: $ENV_NAME/" $MANIFEST
-      if [ $COPY_FROM ]; then molnctl environments create $ENV_NAME --copy-from=$COPY_FROM || true else molnctl environments create $ENV_NAME || true;
+      if [ $COPY_FROM ]; then molnctl environments create $ENV_NAME --copy-from=$COPY_FROM || true; else molnctl environments create $ENV_NAME || true; fi
       molnctl services deploy --no-confirm $MANIFEST
       FINAL_NAME=$(sed -n 's/name: //p' $MANIFEST | awk '{$1=$1};1')
       echo "name=$FINAL_NAME" >> $GITHUB_OUTPUT

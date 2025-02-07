@@ -14,7 +14,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v4
     - name: Molnctl Setup
-      uses: molnett/setup-molnctl-action@v2
+      uses: molnett/setup-molnctl-action@v2.2
       with:
         api-token-client-id: ${{ secrets.MOLNETT_CLIENT_ID }}
         api-token-client-secret: ${{ secrets.MOLNETT_CLIENT_SECRET }}

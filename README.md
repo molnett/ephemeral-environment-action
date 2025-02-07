@@ -58,7 +58,7 @@ jobs:
       - name: Build & Push Image to Molnett
         run: |
           molnctl auth docker
-          IMAGE_NAME=$(molnctl svcs image-name -u molnett.yaml)
+          IMAGE_NAME=$(molnctl svcs image-name service-name -u molnett.yaml)
           docker buildx build . -t $IMAGE_NAME
           docker push $IMAGE_NAME
       - name: Deploy Ephemeral Environment

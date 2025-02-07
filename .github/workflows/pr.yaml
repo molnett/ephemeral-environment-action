@@ -18,7 +18,7 @@ jobs:
       with:
         api-token-client-id: ${{ secrets.MOLNETT_CLIENT_ID }}
         api-token-client-secret: ${{ secrets.MOLNETT_CLIENT_SECRET }}
-        default-org: personal
+        default-org: molnett
     - name: Deploy Ephemeral Environment
       uses: ./
       with:

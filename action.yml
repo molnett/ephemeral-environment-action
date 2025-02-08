@@ -62,7 +62,7 @@ runs:
     run: |
       if [ $COPY_FROM ]; then molnctl environments create $ENV_NAME --copy-from=$COPY_FROM || true; else molnctl environments create $ENV_NAME || true; fi
       molnctl services deploy --env $ENV_NAME --no-confirm $MANIFEST
-      FINAL_NAME=$(sed -n 's/name: //p' $MANIFEST | awk '{$1=$1};1')
+      FINAL_NAME=$(cat $MANIFEST | yq .services[0].name)
       echo "name=$FINAL_NAME" >> $GITHUB_OUTPUT
   - name: Delete Ephemeral Environment
     if: ${{ inputs.action == 'delete' }}

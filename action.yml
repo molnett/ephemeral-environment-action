@@ -16,6 +16,9 @@ outputs:
   environment-name:
     description: 'Name of the created environment'
     value: ${{ steps.env-name.outputs.env }}
+  environment-id:
+    description: 'ID of the created environment'
+    value: ${{ steps.env-id.outputs.env-id }}
   service-name:
     description: 'Name of the deployed service'
     value: ${{ steps.deploy.outputs.name }}
@@ -63,7 +66,9 @@ runs:
       if [ $COPY_FROM ]; then molnctl environments create $ENV_NAME --copy-from=$COPY_FROM || true; else molnctl environments create $ENV_NAME || true; fi
       molnctl services deploy --env $ENV_NAME --no-confirm $MANIFEST
       FINAL_NAME=$(cat $MANIFEST | yq .services[0].name)
+      ID=$(molnctl envs list | grep -w $ENV_NAME | awk '{print $2}')
       echo "name=$FINAL_NAME" >> $GITHUB_OUTPUT
+      echo "env-id=$ID" >> $GITHUB_OUTPUT
   - name: Delete Ephemeral Environment
     if: ${{ inputs.action == 'delete' }}
     shell: bash

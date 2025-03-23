@@ -18,7 +18,7 @@ outputs:
     value: ${{ steps.env-name.outputs.env }}
   environment-id:
     description: 'ID of the created environment'
-    value: ${{ steps.env-id.outputs.env-id }}
+    value: ${{ steps.deploy.outputs.env-id }}
   service-name:
     description: 'Name of the deployed service'
     value: ${{ steps.deploy.outputs.name }}

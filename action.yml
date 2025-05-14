@@ -79,4 +79,4 @@ runs:
     env:
       ENV_NAME: ${{ steps.env-name.outputs.env }}
     run: |
-      molnctl environments delete --no-confirm $ENV_NAME
+      molnctl environments delete --no-confirm $ENV_NAME || true

@@ -51,8 +51,11 @@ runs:
     env:
       ENV_NAME: ${{ github.head_ref }}
     run: |
-      # Replace special characters in branch name with dash
-      ENV_NAME=$(echo $ENV_NAME | tr $'!\'#$%&()+,-./;<=>@]_\`{|}' '-' | cut -c -30)
+      # Clean branch name to be a valid label:
+      # 1. Replace non-alphanumeric chars (except - _ .) with dash
+      # 2. Ensure it starts and ends with alphanumeric
+      # 3. Limit length to 30 chars
+      ENV_NAME=$(echo "$ENV_NAME" | sed -E 's/[^A-Za-z0-9._-]/-/g' | sed -E 's/^[^A-Za-z0-9]*//' | sed -E 's/[^A-Za-z0-9]*$//' | cut -c -30)
       echo "env=$ENV_NAME" >> $GITHUB_OUTPUT
   - name: Deploy Ephemeral Environment
     id: deploy
@@ -66,7 +69,8 @@ runs:
       if [ $COPY_FROM ]; then molnctl environments create $ENV_NAME --copy-from=$COPY_FROM || true; else molnctl environments create $ENV_NAME || true; fi
       molnctl services deploy --env $ENV_NAME --no-confirm $MANIFEST
       FINAL_NAME=$(cat $MANIFEST | yq .services[0].name)
-      ID=$(molnctl envs list | grep -w $ENV_NAME | awk '{print $2}')
+      # Use awk to match exact environment name in second column
+      ID=$(molnctl envs list | awk -v env="$ENV_NAME" '$2 == env {print $1}')
       echo "name=$FINAL_NAME" >> $GITHUB_OUTPUT
       echo "env-id=$ID" >> $GITHUB_OUTPUT
   - name: Delete Ephemeral Environment

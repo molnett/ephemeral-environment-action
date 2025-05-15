@@ -70,7 +70,7 @@ runs:
       molnctl services deploy --env $ENV_NAME --no-confirm $MANIFEST
       FINAL_NAME=$(cat $MANIFEST | yq .services[0].name)
       # Use awk to match exact environment name in second column
-      ID=$(molnctl envs list | awk -v env="$ENV_NAME" '$2 == env {print $1}')
+      ID=$(molnctl envs list | awk -v env="$ENV_NAME" '$4 == env {print $2}')
       echo "name=$FINAL_NAME" >> $GITHUB_OUTPUT
       echo "env-id=$ID" >> $GITHUB_OUTPUT
   - name: Delete Ephemeral Environment
